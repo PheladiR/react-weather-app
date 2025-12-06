@@ -3,6 +3,12 @@ import React from 'react';
 export default function Weather() {
   return (
     <div className="Weather container">
+      <form>
+        <input type="search" placeholder="Enter a city"/>
+        <button type="submit">
+          Search
+        </button>
+      </form>
       <div className="row">
         <div className="col">
           <h1>☀️27°C</h1>
