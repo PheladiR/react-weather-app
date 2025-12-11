@@ -38,7 +38,11 @@ export default function Weather() {
   }
 
   useEffect(() => {
-  }, [search]);
+    async function search() {
+      // fetch weather for city
+    }
+    search();
+  }, [city]);
 
   if (!weatherData.ready) {
     return <div>Loading...</div>;
