@@ -38,8 +38,7 @@ export default function Weather() {
   }
 
   useEffect(() => {
-    search();
-  }, []);
+  }, [search]);
 
   if (!weatherData.ready) {
     return <div>Loading...</div>;
