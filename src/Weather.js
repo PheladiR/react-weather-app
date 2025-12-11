@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./Weather.css";
 import axios from "axios";
 import FormattedDate from "./FormattedDate";
@@ -8,7 +8,7 @@ export default function Weather() {
   const [weatherData, setWeatherData] = useState({ ready: false });
   const [city, setCity] = useState("Polokwane");
 
-  function handleResponse(response) {
+  const handleResponse = useCallback((response) => {
     setWeatherData({
       ready: true,
       date: new Date(response.data.time * 1000),
@@ -20,13 +20,13 @@ export default function Weather() {
       iconUrl: response.data.condition.icon_url,
       city: response.data.city,
     });
-  }
+  }, []);
 
-  function search() {
+  const search = useCallback(() => {
     const apikey = "f4b51cbf6039365ob7atd180fe5e0c57";
     let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apikey}&units=metric`;
     axios.get(apiUrl).then(handleResponse);
-  }
+  }, [city, handleResponse]);
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -38,11 +38,8 @@ export default function Weather() {
   }
 
   useEffect(() => {
-    async function search() {
-      // fetch weather for city
-    }
     search();
-  }, [city]);
+  }, [search]);
 
   if (!weatherData.ready) {
     return <div>Loading...</div>;
