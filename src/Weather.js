@@ -1,61 +1,90 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
+import "./Weather.css";
+import axios from "axios";
+import FormattedDate from "./FormattedDate";
+import WeatherInfo from "./WeatherInfo";
 
 export default function Weather() {
+  const [weatherData, setWeatherData] = useState({ ready: false });
+  const [city, setCity] = useState("Polokwane");
+
+  function handleResponse(response) {
+    setWeatherData({
+      ready: true,
+      date: new Date(response.data.time * 1000),
+      temperature: Math.round(response.data.temperature.current),
+      humidity: response.data.temperature.humidity,
+      wind: Math.round(response.data.wind.speed),
+      precipitation: response.data.precipitation,
+      condition: response.data.condition.description,
+      iconUrl: response.data.condition.icon_url,
+      city: response.data.city,
+    });
+  }
+
+  function search() {
+    const apikey = "f4b51cbf6039365ob7atd180fe5e0c57";
+    let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apikey}&units=metric`;
+    axios.get(apiUrl).then(handleResponse);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    search();
+  }
+
+  function handleCityChange(event) {
+    setCity(event.target.value);
+  }
+
+  useEffect(() => {
+    search();
+  }, []);
+
+  if (!weatherData.ready) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="Weather container">
-      <form>
-        <input type="search" placeholder="Enter a city"/>
-        <button type="submit">
-          Search
-        </button>
-      </form>
-      <div className="row">
-        <div className="col">
-          <h1>☀️27°C</h1>
-          <ul>
-            <li>Precipitation: 19%</li>
-            <li>Humidity: 40%</li>
-            <li>Wind: 10km/h</li>
-          </ul>
+    <div className="weather-app">
+      <header>
+        <form className="search-form" id="search-form" onSubmit={handleSubmit}>
+          <input
+            type="search"
+            placeholder="Enter a city.."
+            required
+            id="search-form-input"
+            className="search-form-input"
+            onChange={handleCityChange}
+          />
+          <input type="submit" value="Search" className="search-form-button" />
+        </form>
+      </header>
+
+      <div className="weather container mt-4">
+        <div className="row align-items-center">
+          {/* ICON */}
+          <div className="col-4 text-center">
+            <img
+              src={weatherData.iconUrl}
+              alt={weatherData.condition}
+              className="weather-icon img-fluid"
+            />
+          </div>
+
+          {/* CITY + CONDITION + DATE */}
+          <div className="col-8">
+            <h2 className="city">{weatherData.city}</h2>
+            <p className="condition text-capitalize">{weatherData.condition}</p>
+            <FormattedDate date={weatherData.date} />
+          </div>
         </div>
-        <div class="col">
-          <h2>Polokwane</h2>
-          <ul>
-            <li>Saturday 10:00</li>
-            <li>Sunny</li>
-          </ul>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          <h3>Sat</h3>
-          <ul>
-            <li>☀️27°C</li>
-          </ul>
-        </div>
-        <div class="col">
-          <h3>Sun</h3>
-          <ul>
-            <li>☀️27°C</li>
-          </ul>
-        </div>
-        <div class="col">
-          <h3>Mon</h3>
-          <ul>
-            <li>☀️27°C</li>
-          </ul>
-        </div>
-        <div class="col">
-          <h3>Tue</h3>
-          <ul>
-            <li>☀️27°C</li>
-          </ul>
-        </div>
-        <div class="col">
-          <h3>Wed</h3>
-          <ul>
-            <li>☀️27°C</li>
-          </ul>
+
+        {/* Temperature + details */}
+        <div className="row mt-4">
+          <div className="col">
+            <WeatherInfo data={weatherData} />
+          </div>
         </div>
       </div>
     </div>
