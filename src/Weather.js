@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import WeatherInfo from "./WeatherInfo";
 import axios from "axios";
 import "./Weather.css";
@@ -7,25 +7,9 @@ export default function Weather(props) {
   const [weatherData, setWeatherData] = useState({ ready: false });
   const [city, setCity] = useState(props.defaultCity);
 
-  const handleResponse = useCallback((response) => {
+  function handleResponse(response) {
     setWeatherData({
       ready: true,
-      date: new Date(response.data.time * 1000),
-      temperature: Math.round(response.data.temperature.current),
-      humidity: response.data.temperature.humidity,
-      wind: Math.round(response.data.wind.speed),
-      precipitation: response.data.precipitation,
-      condition: response.data.condition.description,
-      iconUrl: response.data.condition.icon_url,
-      city: response.data.city,
-    });
-  }, []);
-
-  const search = useCallback(() => {
-    const apikey = "f4b51cbf6039365ob7atd180fe5e0c57";
-    let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apikey}&units=metric`;
-    axios.get(apiUrl).then(handleResponse);
-  }, [city, handleResponse]);
       coordinates: response.data.coord,
       temperature: response.data.main.temp,
       humidity: response.data.main.humidity,
@@ -36,6 +20,12 @@ export default function Weather(props) {
       city: response.data.name,
     });
   }
+
+  const search = useCallback(() => {
+    const apiKey = "5f472b7acba333cd8a035ea85a0d4d4c";
+    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+    axios.get(apiUrl).then(handleResponse);
+  }, [city]);
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -49,15 +39,6 @@ export default function Weather(props) {
   useEffect(() => {
     search();
   }, [search]);
-  function search() {
-    const apiKey = "5f472b7acba333cd8a035ea85a0d4d4c";
-    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-    axios.get(apiUrl).then(handleResponse);
-  }
-
-    useEffect(() => {
-      search();
-    }, []);
 
   if (weatherData.ready) {
     return (
@@ -69,7 +50,7 @@ export default function Weather(props) {
                 type="search"
                 placeholder="Enter a city.."
                 className="form-control"
-                autoFocus="on"
+                autoFocus
                 onChange={handleCityChange}
               />
             </div>
@@ -86,7 +67,6 @@ export default function Weather(props) {
       </div>
     );
   } else {
-    search();
     return "Loading...";
   }
 }
